@@ -17,7 +17,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install
+          cache: 'npm'
+      - run: npm ci || npm install
       - run: npm run build
       - run: npm run export
       - uses: actions/upload-pages-artifact@v3
