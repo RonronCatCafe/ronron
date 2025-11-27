@@ -27,8 +27,8 @@ export default function Home() {
 
       <main className="max-w-6xl mx-auto px-4 py-12">
         {step === 1 && <StepIntro onNext={() => setStep(2)} />}
-        {step === 2 && <StepSelectClass onNext={(data) => { setSelectedClass(data); setStep(3); }} onBack={() => setStep(1)} />}
-        {step === 3 && <StepForm onNext={(data) => { setFormData(data); setStep(4); }} onBack={() => setStep(2)} classData={selectedClass} />}
+        {step === 2 && <StepSelectClass onNext={(data: any) => { setSelectedClass(data); setStep(3); }} onBack={() => setStep(1)} />}
+        {step === 3 && <StepForm onNext={(data: any) => { setFormData(data); setStep(4); }} onBack={() => setStep(2)} classData={selectedClass} />}
         {step === 4 && <StepPayment onSuccess={() => setStep(5)} onBack={() => setStep(3)} formData={formData} classData={selectedClass} />}
         {step === 5 && <StepSuccess onBack={() => { setStep(1); setSelectedClass(null); setFormData(null); }} />}
       </main>
@@ -36,7 +36,7 @@ export default function Home() {
   )
 }
 
-function StepIntro({ onNext }: any) {
+function StepIntro({ onNext }: { onNext: () => void }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center space-y-8">
       <div className="space-y-4">
@@ -87,8 +87,8 @@ function StepIntro({ onNext }: any) {
   )
 }
 
-function StepSelectClass({ onNext, onBack }: any) {
-  const [classes, setClasses] = useState([
+function StepSelectClass({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => void }) {
+  const [classes] = useState([
     { date: '2024-12-15', time: '10:00', total: 8, available: 5 },
     { date: '2024-12-18', time: '14:00', total: 8, available: 2 },
   ])
@@ -131,7 +131,7 @@ function StepSelectClass({ onNext, onBack }: any) {
   )
 }
 
-function StepForm({ onNext, onBack, classData }: any) {
+function StepForm({ onNext, onBack, classData }: { onNext: (data: any) => void; onBack: () => void; classData: any }) {
   const [form, setForm] = useState({ name: '', email: '', phone: '', cpf: '' })
 
   const handleSubmit = (e: any) => {
@@ -174,7 +174,7 @@ function StepForm({ onNext, onBack, classData }: any) {
   )
 }
 
-function StepPayment({ onSuccess, onBack, formData, classData }: any) {
+function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: () => void; onBack: () => void; formData: any; classData: any }) {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState('')
 
@@ -230,7 +230,7 @@ function StepPayment({ onSuccess, onBack, formData, classData }: any) {
             <h3 className="font-bold mb-3">Envie o Comprovante</h3>
             {preview ? (
               <div>
-                <img src={preview} className="w-full h-32 object-cover rounded mb-2" />
+                <img src={preview} className="w-full h-32 object-cover rounded mb-2" alt="Preview" />
                 <button onClick={() => {setFile(null); setPreview('')}} className="text-sm text-red-600">Remover</button>
               </div>
             ) : (
@@ -247,7 +247,7 @@ function StepPayment({ onSuccess, onBack, formData, classData }: any) {
   )
 }
 
-function StepSuccess({ onBack }: any) {
+function StepSuccess({ onBack }: { onBack: () => void }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center space-y-6 max-w-2xl mx-auto">
       <div className="text-6xl">💗</div>
