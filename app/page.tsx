@@ -293,11 +293,12 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
 
         <div className="space-y-4">
           <div className="bg-white p-6 rounded-2xl text-center">
-            <h3 className="font-bold mb-4">QR Code PIX</h3>
-            <div className="bg-gray-100 h-48 flex items-center justify-center rounded-lg text-sm text-gray-600">
-              Escaneie o QR Code<br />no app do seu banco
-            </div>
-          </div>
+  <h3 className="font-bold mb-4">QR Code PIX</h3>
+  <div className="flex items-center justify-center">
+    <img src="/qrcode-pix.png" alt="QR Code PIX" className="w-64 h-64 object-contain" />
+  </div>
+  <p className="text-sm text-gray-600 mt-2">Valor: R$ 80,00</p>
+</div>
 
           <div className="bg-white p-6 rounded-2xl">
             <h3 className="font-bold mb-3">Chave PIX (CNPJ)</h3>
