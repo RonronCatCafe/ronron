@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 export default function Home() {
@@ -88,10 +88,41 @@ function StepIntro({ onNext }: { onNext: () => void }) {
 }
 
 function StepSelectClass({ onNext, onBack }: { onNext: (data: any) => void; onBack: () => void }) {
-  const [classes] = useState([
-    { date: '2024-12-15', time: '10:00', total: 8, available: 5 },
-    { date: '2024-12-18', time: '14:00', total: 8, available: 2 },
-  ])
+  const [classes, setClasses] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('https://script.google.com/macros/s/AKfycbwNb5Xsyk_4dTdbrw_NZHed0jdZBCLJYuOkPnIxLuAA13WYXInWmFGFLWMz-6a6WnDE/exec?action=getClasses')
+      .then(res => res.json())
+      .then(data => {
+        setClasses(data.classes || [])
+        setLoading(false)
+      })
+      .catch(() => {
+        setLoading(false)
+        alert('Erro ao carregar aulas')
+      })
+  }, [])
+
+  if (loading) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
+        <div className="text-4xl mb-4">🐱</div>
+        <p className="text-xl">Carregando aulas disponíveis...</p>
+      </motion.div>
+    )
+  }
+
+  if (classes.length === 0) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
+        <button onClick={onBack} className="text-gray-600 hover:text-ronron-pink mb-6">← Voltar</button>
+        <div className="text-4xl mb-4">😿</div>
+        <h2 className="text-2xl font-bold mb-4">Nenhuma aula disponível no momento</h2>
+        <p className="text-gray-600">Entre em contato conosco para saber as próximas datas!</p>
+      </motion.div>
+    )
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
@@ -99,12 +130,12 @@ function StepSelectClass({ onNext, onBack }: { onNext: (data: any) => void; onBa
       <h2 className="text-4xl font-bold text-center">Escolha Sua Aula</h2>
       
       <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        {classes.map((c, i) => (
+        {classes.map((c: any, i: number) => (
           <div key={i} className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition cursor-pointer" onClick={() => c.available > 0 && onNext(c)}>
             <div className="space-y-3">
               <div>
                 <p className="text-sm text-gray-600">Data</p>
-                <p className="font-bold">{new Date(c.date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                <p className="font-bold">{new Date(c.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Horário</p>
@@ -146,7 +177,7 @@ function StepForm({ onNext, onBack, classData }: { onNext: (data: any) => void; 
 
       <div className="bg-ronron-pink text-white p-6 rounded-2xl">
         <h3 className="font-bold mb-2">Aula Selecionada:</h3>
-        <p>📅 {new Date(classData.date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+        <p>📅 {new Date(classData.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
         <p>🕐 {classData.time}</p>
         <p>💰 R$ 80,00</p>
       </div>
@@ -177,9 +208,12 @@ function StepForm({ onNext, onBack, classData }: { onNext: (data: any) => void; 
 function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: () => void; onBack: () => void; formData: any; classData: any }) {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleFile = (e: any) => {
     const f = e.target.files[0]
+    if (!f) return
+    
     setFile(f)
     const reader = new FileReader()
     reader.onloadend = () => setPreview(reader.result as string)
@@ -191,13 +225,60 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
       alert('Por favor, envie o comprovante')
       return
     }
-    alert('Comprovante enviado!')
-    onSuccess()
+    
+    setLoading(true)
+    
+    try {
+      // Upload para ImgBB
+      const formData2 = new FormData()
+      formData2.append('image', file)
+      
+      const imgbbResponse = await fetch('https://api.imgbb.com/1/upload?key=5edc04401a89ed9cbb279b87b9b203ee', {
+        method: 'POST',
+        body: formData2
+      })
+      
+      const imgbbData = await imgbbResponse.json()
+      
+      if (!imgbbData.success) {
+        throw new Error('Erro ao fazer upload da imagem')
+      }
+      
+      const imageUrl = imgbbData.data.url
+      
+      // Salvar no Google Sheets
+      const bookingData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        cpf: formData.cpf,
+        classDate: classData.date,
+        classTime: classData.time,
+        receiptUrl: imageUrl
+      }
+      
+      const response = await fetch('https://script.google.com/macros/s/AKfycbwNb5Xsyk_4dTdbrw_NZHed0jdZBCLJYuOkPnIxLuAA13WYXInWmFGFLWMz-6a6WnDE/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+      })
+      
+      setLoading(false)
+      onSuccess()
+      
+    } catch (error) {
+      setLoading(false)
+      console.error(error)
+      alert('Erro ao enviar. Tente novamente.')
+    }
   }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 max-w-4xl mx-auto">
-      <button onClick={onBack} className="text-gray-600 hover:text-ronron-pink">← Voltar</button>
+      <button onClick={onBack} className="text-gray-600 hover:text-ronron-pink" disabled={loading}>← Voltar</button>
       <h2 className="text-4xl font-bold text-center">Finalize seu Pagamento</h2>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -205,7 +286,7 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
           <h3 className="font-bold text-xl">Resumo</h3>
           <p><strong>Nome:</strong> {formData.name}</p>
           <p><strong>Email:</strong> {formData.email}</p>
-          <p><strong>Data:</strong> {new Date(classData.date).toLocaleDateString('pt-BR')}</p>
+          <p><strong>Data:</strong> {new Date(classData.date + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
           <p><strong>Horário:</strong> {classData.time}</p>
           <p className="text-2xl font-bold text-ronron-pink">Total: R$ 80,00</p>
         </div>
@@ -213,17 +294,26 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
         <div className="space-y-4">
           <div className="bg-white p-6 rounded-2xl text-center">
             <h3 className="font-bold mb-4">QR Code PIX</h3>
-            <div className="bg-gray-100 h-48 flex items-center justify-center rounded-lg">
-              [QR CODE]
+            <div className="bg-gray-100 h-48 flex items-center justify-center rounded-lg text-sm text-gray-600">
+              Escaneie o QR Code<br />no app do seu banco
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-2xl">
-            <h3 className="font-bold mb-3">Chave PIX</h3>
+            <h3 className="font-bold mb-3">Chave PIX (CNPJ)</h3>
             <div className="flex gap-2">
               <input readOnly value="47.372.342/0001-04" className="flex-1 px-3 py-2 border rounded" />
-              <button onClick={() => navigator.clipboard.writeText('47.372.342/0001-04')} className="bg-ronron-pink text-white px-4 rounded">Copiar</button>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText('47.372.342/0001-04')
+                  alert('Chave PIX copiada!')
+                }} 
+                className="bg-ronron-pink text-white px-4 rounded"
+              >
+                Copiar
+              </button>
             </div>
+            <p className="text-sm text-gray-600 mt-2">Ronron Cat Cafe</p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl">
@@ -231,15 +321,22 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
             {preview ? (
               <div>
                 <img src={preview} className="w-full h-32 object-cover rounded mb-2" alt="Preview" />
-                <button onClick={() => {setFile(null); setPreview('')}} className="text-sm text-red-600">Remover</button>
+                <button onClick={() => {setFile(null); setPreview('')}} className="text-sm text-red-600" disabled={loading}>Remover</button>
               </div>
             ) : (
               <label className="border-2 border-dashed p-8 rounded-lg block text-center cursor-pointer hover:border-ronron-pink">
-                <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
+                <input type="file" accept="image/*" onChange={handleFile} className="hidden" disabled={loading} />
                 <p>📷 Clique para selecionar</p>
+                <p className="text-xs text-gray-500 mt-2">Tire uma foto ou screenshot do comprovante</p>
               </label>
             )}
-            <button onClick={handleSubmit} className="w-full bg-ronron-pink text-white py-3 rounded-full font-semibold mt-4">Confirmar Pagamento</button>
+            <button 
+              onClick={handleSubmit} 
+              disabled={loading || !file}
+              className="w-full bg-ronron-pink text-white py-3 rounded-full font-semibold mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Enviando...' : 'Confirmar Pagamento'}
+            </button>
           </div>
         </div>
       </div>
@@ -252,7 +349,18 @@ function StepSuccess({ onBack }: { onBack: () => void }) {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center space-y-6 max-w-2xl mx-auto">
       <div className="text-6xl">💗</div>
       <h2 className="text-4xl font-bold">Comprovante Enviado! 🎉</h2>
-      <p className="text-xl text-gray-600">Recebemos seu comprovante. Você receberá confirmação em até 24 horas.</p>
+      <div className="bg-white p-6 rounded-2xl text-left space-y-3">
+        <p className="text-lg">✅ Sua inscrição foi recebida com sucesso!</p>
+        <p className="text-gray-600">📧 Você receberá um email de confirmação em breve.</p>
+        <p className="text-gray-600">⏰ Analisaremos seu comprovante em até 24 horas.</p>
+        <p className="text-gray-600">💌 Após a aprovação, enviaremos a confirmação final.</p>
+      </div>
+      <div className="bg-ronron-pink-light p-6 rounded-2xl">
+        <p className="font-bold mb-2">📍 Lembre-se do endereço:</p>
+        <p className="text-sm">Rua Carneiro da Silva, 28A - Vila Leopoldina, SP</p>
+        <p className="text-sm">☎ (11) 93738-2500</p>
+      </div>
+      <p className="text-gray-600">Mal podemos esperar para te receber! 🐱✨</p>
       <button onClick={onBack} className="bg-ronron-pink text-white px-8 py-3 rounded-full font-semibold">Voltar ao Início</button>
     </motion.div>
   )
