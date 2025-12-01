@@ -182,7 +182,7 @@ function StepForm({ onNext, onBack, classData }: { onNext: (data: any) => void; 
         <p>💰 R$ 80,00</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-semibold mb-2">Nome Completo *</label>
           <input required type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full px-4 py-3 border-2 rounded-xl" placeholder="Seu nome" />
@@ -349,12 +349,10 @@ function StepSuccess({ onBack }: { onBack: () => void }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center space-y-6 max-w-2xl mx-auto">
       <div className="text-6xl">💗</div>
-      <h2 className="text-4xl font-bold">Comprovante Enviado! 🎉</h2>
+      <h2 className="text-4xl font-bold">Reserva Confirmada! 🎉</h2>
       <div className="bg-white p-6 rounded-2xl text-left space-y-3">
-        <p className="text-lg">✅ Sua inscrição foi recebida com sucesso!</p>
-        <p className="text-gray-600">📧 Você receberá um email de confirmação em breve.</p>
-        <p className="text-gray-600">⏰ Analisaremos seu comprovante em até 24 horas.</p>
-        <p className="text-gray-600">💌 Após a aprovação, enviaremos a confirmação final.</p>
+        <p className="text-lg">✅ Sua vaga está garantida!</p>
+        <p className="text-gray-600">🐱 Prepare-se para uma experiência incrível!</p>
       </div>
       <div className="bg-ronron-pink-light p-6 rounded-2xl">
         <p className="font-bold mb-2">📍 Lembre-se do endereço:</p>
