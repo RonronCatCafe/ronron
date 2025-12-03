@@ -71,6 +71,17 @@ function StepIntro({ onNext }: { onNext: () => void }) {
         </div>
       </div>
 
+      {/* NOVO: Aviso sobre o tapetinho */}
+      <div className="bg-yellow-50 border-2 border-yellow-200 p-6 rounded-2xl max-w-2xl mx-auto">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">🧘‍♀️</div>
+          <div className="text-left">
+            <h3 className="font-bold text-yellow-800 mb-1">Importante!</h3>
+            <p className="text-sm text-yellow-700">Por favor, traga seu próprio tapetinho de yoga para a aula.</p>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white p-6 rounded-2xl max-w-2xl mx-auto text-left">
         <h3 className="font-bold mb-3">📍 Onde Estamos</h3>
         <p className="text-sm">Rua Carneiro da Silva, 28A - Vila Leopoldina, SP</p>
@@ -127,6 +138,11 @@ function StepSelectClass({ onNext, onBack }: { onNext: (data: any) => void; onBa
         {classes.map((c: any, i: number) => (
           <div key={i} className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition cursor-pointer" onClick={() => c.available > 0 && onNext(c)}>
             <div className="space-y-3">
+              {/* NOVO: Exibe o título da aula */}
+              <div className="bg-ronron-pink-light px-3 py-1 rounded-full inline-block">
+                <p className="text-sm font-bold text-ronron-pink">{c.title}</p>
+              </div>
+              
               <div>
                 <p className="text-sm text-gray-600">Data</p>
                 <p className="font-bold">{new Date(c.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
@@ -171,6 +187,8 @@ function StepForm({ onNext, onBack, classData }: { onNext: (data: any) => void; 
 
       <div className="bg-ronron-pink text-white p-6 rounded-2xl">
         <h3 className="font-bold mb-2">Aula Selecionada:</h3>
+        {/* NOVO: Exibe o título */}
+        <p>🐱 {classData.title}</p>
         <p>📅 {new Date(classData.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
         <p>🕐 {classData.time}</p>
         <p>💰 R$ 80,00</p>
@@ -223,7 +241,6 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
     setLoading(true)
     
     try {
-      // Upload para ImgBB
       const formData2 = new FormData()
       formData2.append('image', file)
       
@@ -240,7 +257,6 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
       
       const imageUrl = imgbbData.data.url
       
-      // Salvar no Google Sheets
       const bookingData = {
         name: formData.name,
         email: formData.email,
@@ -278,6 +294,8 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-2xl space-y-3">
           <h3 className="font-bold text-xl">Resumo</h3>
+          {/* NOVO: Exibe o título */}
+          <p><strong>Aula:</strong> {classData.title}</p>
           <p><strong>Nome:</strong> {formData.name}</p>
           <p><strong>Email:</strong> {formData.email}</p>
           <p><strong>Data:</strong> {new Date(classData.date + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
@@ -348,6 +366,18 @@ function StepSuccess({ onBack }: { onBack: () => void }) {
         <p className="text-lg">✅ Sua vaga está garantida!</p>
         <p className="text-gray-600">🐱 Prepare-se para uma experiência incrível!</p>
       </div>
+      
+      {/* NOVO: Lembrete sobre o tapetinho */}
+      <div className="bg-yellow-50 border-2 border-yellow-200 p-6 rounded-2xl text-left">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">🧘‍♀️</div>
+          <div>
+            <p className="font-bold text-yellow-800 mb-1">Lembre-se!</p>
+            <p className="text-sm text-yellow-700">Não esqueça de trazer seu tapetinho de yoga no dia da aula.</p>
+          </div>
+        </div>
+      </div>
+      
       <div className="bg-ronron-pink-light p-6 rounded-2xl">
         <p className="font-bold mb-2">📍 Lembre-se do endereço:</p>
         <p className="text-sm">Rua Carneiro da Silva, 28A - Vila Leopoldina, SP</p>
