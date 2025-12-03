@@ -49,7 +49,7 @@ function StepIntro({ onNext }: { onNext: () => void }) {
         </button>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6 mt-12">
+      <div className="grid md:grid-cols-2 gap-6 mt-12 max-w-3xl mx-auto">
         <div className="bg-white p-6 rounded-2xl shadow">
           <div className="text-4xl mb-3">🕐</div>
           <h3 className="font-bold mb-2">1 Hora de Prática</h3>
@@ -60,11 +60,6 @@ function StepIntro({ onNext }: { onNext: () => void }) {
           <h3 className="font-bold mb-2">Grupos Pequenos</h3>
           <p className="text-sm text-gray-600">Máximo 8 participantes</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <div className="text-4xl mb-3">💗</div>
-          <h3 className="font-bold mb-2">Lanche Incluso</h3>
-          <p className="text-sm text-gray-600">Pão de queijo + café</p>
-        </div>
       </div>
 
       <div className="bg-gradient-to-r from-ronron-pink-light to-white p-8 rounded-2xl max-w-2xl mx-auto">
@@ -73,7 +68,6 @@ function StepIntro({ onNext }: { onNext: () => void }) {
           <p>✓ 1 hora de yoga com instrutor</p>
           <p>✓ Interação com gatinhos</p>
           <p>✓ Ambiente climatizado</p>
-          <p>✓ Lanche incluso</p>
         </div>
       </div>
 
@@ -293,12 +287,12 @@ function StepPayment({ onSuccess, onBack, formData, classData }: { onSuccess: ()
 
         <div className="space-y-4">
           <div className="bg-white p-6 rounded-2xl text-center">
-  <h3 className="font-bold mb-4">QR Code PIX</h3>
-  <div className="flex items-center justify-center">
-    <img src="/qrcode-pix.png" alt="QR Code PIX" className="w-64 h-64 object-contain" />
-  </div>
-  <p className="text-sm text-gray-600 mt-2">Valor: R$ 80,00</p>
-</div>
+            <h3 className="font-bold mb-4">QR Code PIX</h3>
+            <div className="flex items-center justify-center">
+              <img src="/qrcode-pix.png" alt="QR Code PIX" className="w-64 h-64 object-contain" />
+            </div>
+            <p className="text-sm text-gray-600 mt-2">Valor: R$ 80,00</p>
+          </div>
 
           <div className="bg-white p-6 rounded-2xl">
             <h3 className="font-bold mb-3">Chave PIX (CNPJ)</h3>
